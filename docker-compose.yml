@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  neovim:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: anjn/neovim
+    container_name: anjn-neovim
+    restart: always
+    volumes:
+      - ${HOME}:${HOME}
+      - ./files/config:/xdg/config
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${XILINX_VITIS:-/dev/null}:${XILINX_VITIS:-/.devnull0}:ro
+      - ${XILINX_HLS:-/dev/null}:${XILINX_HLS:-/.devnull1}:ro
+      - ${XILINX_XRT:-/dev/null}:${XILINX_XRT:-/.devnull2}:ro
+    shm_size: 2gb
+    environment:
+      - USER
+      - DISPLAY
+    working_dir: /home/${USER}
+
