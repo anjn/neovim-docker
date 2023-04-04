@@ -1,4 +1,4 @@
-set -x
+#set -x
 
 export USER=$USER
 export HOME=/home/$USER

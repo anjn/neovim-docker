@@ -1,3 +1,4 @@
+set -e
 name=anjn-neovim
 
 container_exist=0
