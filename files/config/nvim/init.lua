@@ -7,6 +7,7 @@ end
 
 vim.cmd [[ let g:python3_host_prog = '/usr/bin/python3' ]]
 vim.cmd [[ let g:neo_tree_remove_legacy_commands = 1 ]]
+vim.cmd [[ set updatetime=100 ]]
 
 vim.cmd('packadd vim-jetpack')
 require('jetpack.packer').add {
@@ -79,6 +80,7 @@ require('jetpack.packer').add {
     'myusuf3/numbers.vim',
     'petertriho/nvim-scrollbar',
     'lukas-reineke/indent-blankline.nvim',
+    'airblade/vim-gitgutter',
   
     -- clipboard
     'gbprod/yanky.nvim',

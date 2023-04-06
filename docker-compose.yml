@@ -14,6 +14,7 @@ services:
       - ${XILINX_VITIS:-/dev/null}:${XILINX_VITIS:-/.devnull0}:ro
       - ${XILINX_HLS:-/dev/null}:${XILINX_HLS:-/.devnull1}:ro
       - ${XILINX_XRT:-/dev/null}:${XILINX_XRT:-/.devnull2}:ro
+      - ${PKGCONFIG_XRT:-/dev/null}:${PKGCONFIG_XRT:-/.devnull3}:ro
     shm_size: 2gb
     environment:
       - USER

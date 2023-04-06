@@ -18,6 +18,7 @@ if [[ $container_exist -eq 0 ]] || [[ "$( docker container inspect -f '{{.State.
     
     if [ -e /opt/xilinx/xrt/setup.sh ] ; then
         source /opt/xilinx/xrt/setup.sh
+        export PKGCONFIG_XRT=/usr/lib/pkgconfig/xrt.pc
     fi
     
     pushd $(dirname $(readlink -f $0))
