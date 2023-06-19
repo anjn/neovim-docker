@@ -66,10 +66,10 @@ RUN URL=https://github.com/jesseduffield/lazygit/releases/download/v0.37.0/lazyg
     && rm $TMP
 
 # Install NeoVim
-RUN URL=https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.deb \
+RUN URL=https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz \
     && TMP=/tmp/$(echo $URL | sed 's/^.*[=\/]//') \
     && wget $URL -O $TMP \
-    && dpkg -i $TMP \
+    && tar xf $TMP --strip-components=1 -C /usr \
     && rm $TMP
 
 # Install ripgrep
