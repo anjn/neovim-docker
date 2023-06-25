@@ -48,7 +48,7 @@ require('jetpack.packer').add {
     },
 
     'onsails/lspkind.nvim',
-    'j-hui/fidget.nvim',
+    { 'j-hui/fidget.nvim', tag = 'legacy' },
     'folke/lsp-colors.nvim',
 
     -- telescope
