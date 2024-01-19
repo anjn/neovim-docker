@@ -11,6 +11,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         bear \
+        build-essential \
         ca-certificates \
         ccls \
         clang \
@@ -19,6 +20,7 @@ RUN apt-get update \
         curl \
         fd-find \
         fzf \
+        gcc \
         git \
         less \
         libeigen3-dev \
@@ -72,6 +74,9 @@ RUN URL=https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.
     && tar xf $TMP --strip-components=1 -C /usr \
     && rm $TMP
 
+# https://github.com/nvim-treesitter/nvim-treesitter#i-get-query-error-invalid-node-type-at-position
+RUN rm -rf /usr/lib/nvim/parser
+
 # Install ripgrep
 RUN URL=https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_13.0.0_amd64.deb \
     && TMP=/tmp/$(echo $URL | sed 's/^.*[=\/]//') \
@@ -79,6 +84,12 @@ RUN URL=https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_1
     && dpkg -i $TMP \
     && rm $TMP
 
+# Install tree-sitter
+#RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+#RUN source "$HOME/.cargo/env" \
+#    && cargo install tree-sitter-cli
+
+# Scripts
 COPY files/entrypoint.sh \
      files/launch-nvim.sh \
      /

@@ -20,6 +20,11 @@ if [[ $container_exist -eq 0 ]] || [[ "$( docker container inspect -f '{{.State.
         source /opt/xilinx/xrt/setup.sh
         export PKGCONFIG_XRT=/usr/lib/pkgconfig/xrt.pc
     fi
+
+    export ROOTLESS=
+    if docker info -f json | jq '.SecurityOptions' | grep rootless > /dev/null ; then
+        export ROOTLESS=true
+    fi
     
     pushd $(dirname $(readlink -f $0))
     docker-compose down

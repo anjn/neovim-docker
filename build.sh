@@ -4,13 +4,11 @@ dir=$(dirname $(readlink -f $0))
 
 opts=
 
-PROXY=http://192.168.1.200:3128
-
-if [[ -n $PROXY ]] ; then
-    opts="$opts --build-arg http_proxy=$PROXY"
-    opts="$opts --build-arg https_proxy=$PROXY"
-    opts="$opts --build-arg HTTP_PROXY=$PROXY"
-    opts="$opts --build-arg HTTPS_PROXY=$PROXY"
+if [[ -n $HTTP_PROXY ]] ; then
+    opts="$opts --build-arg http_proxy=$HTTP_PROXY"
+    opts="$opts --build-arg https_proxy=$HTTP_PROXY"
+    opts="$opts --build-arg HTTP_PROXY=$HTTP_PROXY"
+    opts="$opts --build-arg HTTPS_PROXY=$HTTP_PROXY"
 fi
 
 cd $dir

@@ -16,27 +16,118 @@ require('jetpack.packer').add {
     'MunifTanjim/nui.nvim',
     -- colorscheme
     'EdenEast/nightfox.nvim',
-    'folke/tokyonight.nvim',
+    {
+        'folke/tokyonight.nvim',
+        config = function()
+            require("tokyonight").setup {
+                style = "night",
+            }
+        end
+    },
     { "bluz71/vim-moonfly-colors", as = "moonfly" },
     'jacoborus/tender.vim',
     -- mason
-    'williamboman/mason.nvim',
-    'williamboman/mason-lspconfig.nvim',
-    -- lsp
-    'neovim/nvim-lspconfig',
+    {
+        'williamboman/mason.nvim',
+        config = function()
+            require('mason').setup()
+        end,
+        run = { ':MasonUpdate', ':LspInstall pyright' },
+    },
+    -- mason-lspconfig
+    {
+        'williamboman/mason-lspconfig.nvim',
+        depends = { 'neovim/nvim-lspconfig', 'hrsh7th/cmp-nvim-lsp' },
+        config = function()
+            require("mason-lspconfig").setup {
+                automatic_installation = true,
+            }
+            require('mason-lspconfig').setup_handlers({ function(server)
+                require('lspconfig')[server].setup {
+                    on_attach = function(client, bufnr)
+                        local bufopts = { noremap=true, silent=true, buffer=bufnr }
+                        vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
+                        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+                        vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
+                        vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+                        vim.keymap.set('n', '<space>f', vim.lsp.buf.formatting, bufopts)
+                        vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, bufopts)
+                    end,
+                    capabilities = require('cmp_nvim_lsp').default_capabilities()
+                }
+            end })
+        end,
+    },
+    -- lspconfig
+    {
+        'neovim/nvim-lspconfig',
+        depends = 'williamboman/mason.nvim',
+        config = function()
+            require('lspconfig').clangd.setup {
+                filetypes = { "c", "cpp", "hpp" },
+            }
+            require('lspconfig').pyright.setup {}
+        end,
+    },
     -- nvim-cmp
     'hrsh7th/cmp-nvim-lsp',
     'hrsh7th/cmp-buffer',
     'hrsh7th/cmp-path',
     'hrsh7th/cmp-cmdline',
     'hrsh7th/cmp-nvim-lsp-signature-help',
-    'hrsh7th/nvim-cmp',
+    {
+        'hrsh7th/nvim-cmp',
+        depends = { 'onsails/lspkind.nvim' },
+        config = function()
+            local cmp = require'cmp'
+            local lspkind = require('lspkind')
+            
+            cmp.setup({
+                snippet = {
+                    expand = function(args)
+                        vim.fn["vsnip#anonymous"](args.body)
+                    end,
+                },
+                window = {
+                    completion = cmp.config.window.bordered(),
+                    documentation = cmp.config.window.bordered(),
+                },
+                mapping = cmp.mapping.preset.insert({
+                    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+                    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+                    ['<C-Space>'] = cmp.mapping.complete(),
+                    ['<C-e>'] = cmp.mapping.abort(),
+                    ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+                }),
+                sources = {
+                    { name = 'nvim_lsp' },
+                    { name = 'vsnip' },
+                    { name = 'buffer' },
+                    { name = 'path' },
+                    { name = 'nvim_lsp_signature_help' },
+                },
+                formatting = {
+                    format = lspkind.cmp_format({})
+                },
+            })
+        end,
+    },
+    
     -- vsnip
     'hrsh7th/cmp-vsnip',
     'hrsh7th/vim-vsnip',
     -- lspsaga
     "nvim-tree/nvim-web-devicons",
-    "nvim-treesitter/nvim-treesitter",
+    {
+        'nvim-treesitter/nvim-treesitter',
+        config = function()
+            require'nvim-treesitter.configs'.setup {
+                ensure_installed = { 'markdown', 'markdown_inline', 'vimdoc', 'lua' },
+                auto_install = true,
+            }
+        end,
+        run = ':TSUpdate'
+    },
     {
         "glepnir/lspsaga.nvim",
         opt = true,
@@ -48,7 +139,13 @@ require('jetpack.packer').add {
     },
 
     'onsails/lspkind.nvim',
-    { 'j-hui/fidget.nvim', tag = 'legacy' },
+    {
+        'j-hui/fidget.nvim',
+        tag = 'legacy',
+        config = function()
+            require"fidget".setup {}
+        end,
+    },
     'folke/lsp-colors.nvim',
 
     -- telescope
@@ -56,47 +153,154 @@ require('jetpack.packer').add {
     { 'nvim-telescope/telescope-fzf-native.nvim',
       run = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'
     },
-    { 'nvim-telescope/telescope.nvim', tag = '0.1.1' },
-
-    "kkharji/sqlite.lua",
-    { "nvim-telescope/telescope-frecency.nvim",
-      config = function()
-          require"telescope".load_extension("frecency")
-      end,
+    {
+        'nvim-telescope/telescope.nvim',
+        tag = '0.1.5',
+        depends = { 'nvim-lua/plenary.nvim', 'nvim-telescope/telescope-frecency.nvim', 'nvim-telescope/telescope-fzf-native.nvim' },
+        config = function()
+            require("telescope").load_extension("frecency")
+            require('telescope').load_extension('fzf')
+            require('telescope').setup {
+                defaults = {
+                    color_devicons = true,
+                    layout_config = {
+                        width = 0.7,
+                        horizontal = {
+                            preview_width = 0.6
+                        }
+                    }
+                },
+                pickers = {
+                    buffers = {
+                        ignore_current_buffer = true,
+                        sort_lastused = true,
+                    },
+              },
+            }
+        end,
     },
 
+    'kkharji/sqlite.lua',
+    'nvim-telescope/telescope-frecency.nvim',
+
     -- lualine
-    'nvim-lualine/lualine.nvim',
+    {
+        '',
+        config = function()
+        end,
+    },
+    {
+        'nvim-lualine/lualine.nvim',
+        config = function()
+            require('lualine').setup {
+                options = {
+                    theme = 'moonfly',
+                },
+            }
+        end,
+    },
   
     { 'stevearc/aerial.nvim',
       config = function() require('aerial').setup() end
     },
   
-    { "nvim-neo-tree/neo-tree.nvim",
-      branch = "v2.x",
+    {
+        'nvim-neo-tree/neo-tree.nvim',
+        branch = 'v2.x',
+        config = function()
+            require("neo-tree").setup {}
+        end,
     },
+
+    -- tab
+    --{
+    --    'akinsho/bufferline.nvim',
+    --    depends = 'nvim-tree/nvim-web-devicons',
+    --    config = function()
+    --        vim.opt.termguicolors = true
+    --        require("bufferline").setup {
+    --            options = {
+    --                mode = "tabs",
+    --                diagnostics = "nvim_lsp",
+    --                offsets = {
+    --                    {
+    --                        filetype = "neo-tree",
+    --                        text = "󰥨 File Explorer",
+    --                        text_align = "left",
+    --                        separator = true,
+    --                    },
+    --                },
+    --            },
+    --        }
+    --    end,
+    --},
   
     -- display
     'myusuf3/numbers.vim',
-    'petertriho/nvim-scrollbar',
-    'lukas-reineke/indent-blankline.nvim',
-    'airblade/vim-gitgutter',
+    {
+        'petertriho/nvim-scrollbar',
+        config = function()
+            require("scrollbar").setup {
+                excluded_buftypes = {
+                    "terminal",
+                },
+                excluded_filetypes = {
+                    "prompt",
+                    "TelescopePrompt",
+                    "noice",
+                    "neo-tree",
+                    "aerial",
+                },
+            }
+        end,
+    },
+    {
+        'lukas-reineke/indent-blankline.nvim',
+        config = function()
+            require("ibl").setup {}
+        end,
+    },
+
+    -- git
+    --'airblade/vim-gitgutter',
+    {
+        'lewis6991/gitsigns.nvim',
+        config = function()
+            require('gitsigns').setup {}
+        end,
+    },
   
     -- clipboard
-    'gbprod/yanky.nvim',
-    'AckslD/nvim-neoclip.lua',
+    {
+        'gbprod/yanky.nvim',
+        config = function()
+            require("yanky").setup {}
+        end,
+    },
+    {
+        'AckslD/nvim-neoclip.lua',
+        config = function()
+            require('neoclip').setup {}
+        end,
+    },
   
     -- edit
-    'numToStr/Comment.nvim',
-    'windwp/nvim-autopairs',
+    {
+        'numToStr/Comment.nvim',
+        config = function()
+            require('Comment').setup {}
+        end,
+    },
+    {
+        'windwp/nvim-autopairs',
+        config = function()
+            require("nvim-autopairs").setup {}
+        end,
+    },
     'deris/vim-rengbang',
 }
 
 -- colorscheme
-require("tokyonight").setup {
-    style = "night",
-}
-
 vim.cmd [[
 try
 colorscheme nightfox
@@ -108,113 +312,15 @@ endtry
 
 vim.cmd [[ hi Comment gui=NONE ]] -- disable italic
 
--- mason
-require('mason').setup()
-require("mason-lspconfig").setup {
-    automatic_installation = true,
-}
-require('mason-lspconfig').setup_handlers({ function(server)
-    require('lspconfig')[server].setup {
-        on_attach = function(client, bufnr)
-            local bufopts = { noremap=true, silent=true, buffer=bufnr }
-            vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-            vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
-            vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
-            vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-            vim.keymap.set('n', '<space>f', vim.lsp.buf.formatting, bufopts)
-            vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, bufopts)
-        end,
-        capabilities = require('cmp_nvim_lsp').default_capabilities()
-    }
-end })
-
--- lspconfig
-require'lspconfig'.clangd.setup {
-    filetypes = { "c", "cpp", "hpp" },
-}
-require'lspconfig'.pyright.setup {}
-
--- nvim-cmp
-local cmp = require'cmp'
-local lspkind = require('lspkind')
-
-cmp.setup({
-    snippet = {
-        expand = function(args)
-            vim.fn["vsnip#anonymous"](args.body)
-        end,
-    },
-    window = {
-        completion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered(),
-    },
-    mapping = cmp.mapping.preset.insert({
-        ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-        ['<C-f>'] = cmp.mapping.scroll_docs(4),
-        ['<C-Space>'] = cmp.mapping.complete(),
-        ['<C-e>'] = cmp.mapping.abort(),
-        ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
-    }),
-    sources = {
-        { name = 'nvim_lsp' },
-        { name = 'vsnip' },
-        { name = 'buffer' },
-        { name = 'path' },
-        { name = 'nvim_lsp_signature_help' },
-    },
-    formatting = {
-        format = lspkind.cmp_format({})
-    },
-})
-
--- nvim-treesitter
-require'nvim-treesitter.configs'.setup {
-    ensure_installed = { "markdown", "markdown_inline" },
-    auto_install = true,
-}
-
--- lsp
-require"fidget".setup {}
-
-require('lualine').setup {
-    options = {
-        theme = 'moonfly',
-    },
-}
-
-require("neo-tree").setup {}
-
--- scrollbar
-require("scrollbar").setup {
-    excluded_buftypes = {
-        "terminal",
-    },
-    excluded_filetypes = {
-        "prompt",
-        "TelescopePrompt",
-        "noice",
-        "neo-tree",
-        "aerial",
-    },
-}
-
 -- number
 vim.cmd [[ let g:numbers_exclude = ['neo-tree', 'aerial', 'terminal'] ]]
 
 -- indent-blankline
 vim.opt.list = true
 
-require("indent_blankline").setup {}
-
 -- edit
-require('neoclip').setup {}
 vim.cmd [[ lua require('telescope').load_extension('neoclip') ]]
-
-require("yanky").setup {}
 vim.cmd [[ lua require("telescope").load_extension("yank_history") ]]
-
-require('Comment').setup {}
-require("nvim-autopairs").setup {}
 
 -- options
 vim.opt.number = true

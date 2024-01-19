@@ -19,5 +19,7 @@ services:
     environment:
       - USER
       - DISPLAY
+      - TMUX
+      - ROOTLESS
     working_dir: /home/${USER}
 
