@@ -48,10 +48,13 @@ require('jetpack.packer').add {
                         local bufopts = { noremap=true, silent=true, buffer=bufnr }
                         vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
                         vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
+                        vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
                         vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
                         vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+                        vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, bufopts)
+                        vim.keymap.set('n', 'gn', vim.lsp.buf.rename, bufopts)
+                        vim.keymap.set('n', 'ga', vim.lsp.buf.code_action, bufopts)
                         vim.keymap.set('n', '<space>f', vim.lsp.buf.formatting, bufopts)
-                        vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, bufopts)
                     end,
                     capabilities = require('cmp_nvim_lsp').default_capabilities()
                 }
