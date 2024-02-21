@@ -2,6 +2,10 @@
 set -x
 set -e
 
+mkdir -p /xdg/local/share
+mkdir -p /xdg/local/state
+mkdir -p /xdg/cache
+
 if [[ -z "$ROOTLESS" ]] ; then
     uid=$(stat -c "%u" .)
     gid=$(stat -c "%g" .)
@@ -14,10 +18,6 @@ if [[ -z "$ROOTLESS" ]] ; then
 
     find /xdg -not -user $USER -execdir chown $USER:$USER {} \+
 fi
-
-mkdir -p /xdg/local/share
-mkdir -p /xdg/local/state
-mkdir -p /xdg/cache
 
 # Do nothing forever
 tail -f /dev/null
