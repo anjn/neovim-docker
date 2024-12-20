@@ -70,6 +70,18 @@ require('jetpack.packer').add {
                 filetypes = { "c", "cpp", "hpp" },
             }
             require('lspconfig').pyright.setup {}
+            require('lspconfig').verible.setup{
+                cmd = {
+                    '/home/jun/.local/bin/verible-verilog-ls',
+                    '--rules_config_search',
+                    '--column_limit=100',
+                    '--indentation_spaces=4',
+                    '--assignment_statement_alignment=align',
+                    '--named_parameter_alignment=align',
+                    '--named_port_alignment=preserve',
+                    '--port_declarations_alignment=align',
+                },
+            }
         end,
     },
     -- nvim-cmp
@@ -154,12 +166,19 @@ require('jetpack.packer').add {
     -- telescope
     'nvim-lua/plenary.nvim',
     { 'nvim-telescope/telescope-fzf-native.nvim',
-      run = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'
+      run = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release',
     },
+    'kkharji/sqlite.lua',
+    'nvim-telescope/telescope-frecency.nvim',
+
     {
         'nvim-telescope/telescope.nvim',
         tag = '0.1.5',
-        depends = { 'nvim-lua/plenary.nvim', 'nvim-telescope/telescope-frecency.nvim', 'nvim-telescope/telescope-fzf-native.nvim' },
+        depends = {
+            'nvim-lua/plenary.nvim',
+            'nvim-telescope/telescope-frecency.nvim',
+            'nvim-telescope/telescope-fzf-native.nvim',
+        },
         config = function()
             require("telescope").load_extension("frecency")
             require('telescope').load_extension('fzf')
@@ -178,13 +197,10 @@ require('jetpack.packer').add {
                         ignore_current_buffer = true,
                         sort_lastused = true,
                     },
-              },
+                },
             }
         end,
     },
-
-    'kkharji/sqlite.lua',
-    'nvim-telescope/telescope-frecency.nvim',
 
     -- lualine
     {
@@ -301,6 +317,7 @@ require('jetpack.packer').add {
         end,
     },
     'deris/vim-rengbang',
+    'junegunn/vim-easy-align',
 }
 
 -- colorscheme
@@ -324,6 +341,7 @@ vim.opt.list = true
 -- edit
 vim.cmd [[ lua require('telescope').load_extension('neoclip') ]]
 vim.cmd [[ lua require("telescope").load_extension("yank_history") ]]
+vim.cmd [[ command! Format execute 'lua vim.lsp.buf.format()' ]]
 
 -- options
 vim.opt.number = true
@@ -357,6 +375,7 @@ keymap("n", "tx", "<cmd>belowright new<CR><cmd>terminal bash<cr>", opts)
 keymap("n", ",t", ":Neotree toggle<Return>", opts)
 
 keymap('n', ',f', '<cmd>lua require("telescope.builtin").find_files()<cr>', {noremap = true})
+keymap('n', ',g', '<cmd>lua require("telescope.builtin").live_grep()<cr>', {noremap = true})
 keymap('n', ',b', '<cmd>lua require("telescope.builtin").buffers()<cr>', {noremap = true})
 keymap('n', ',h', '<cmd>lua require("telescope.builtin").help_tags()<cr>', {noremap = true})
 keymap('n', ',y', '<cmd>lua require("telescope").extensions.neoclip.default()<cr>', {noremap = true})
@@ -365,6 +384,9 @@ keymap('n', ',a', '<cmd>AerialToggle<cr>', {noremap = true})
 
 keymap('n', '<c-n>', '<Plug>(YankyCycleForward)', opts)
 keymap('n', '<c-p>', '<Plug>(YankyCycleBackward)', opts)
+
+---- escape from insert mode in terminal
+keymap('t', '<esc>', '<c-\\><c-n>', opts)
 
 -- terminal
 vim.api.nvim_create_autocmd({ 'TermOpen' }, {

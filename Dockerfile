@@ -92,7 +92,7 @@ RUN URL=https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep_1
 # Scripts
 COPY files/entrypoint.sh \
      files/launch-nvim.sh \
-     files/install-vai.sh \
+     files/install-*.sh \
      /
 
 ENTRYPOINT ["/entrypoint.sh"]

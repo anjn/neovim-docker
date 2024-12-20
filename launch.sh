@@ -21,6 +21,10 @@ if [[ $container_exist -eq 0 ]] || [[ "$( docker container inspect -f '{{.State.
         export PKGCONFIG_XRT=/usr/lib/pkgconfig/xrt.pc
     fi
 
+    if [ -e /data ] ; then
+        export DATA_DIR=/data
+    fi
+
     export ROOTLESS=
     if docker info -f json | jq '.SecurityOptions' | grep rootless > /dev/null ; then
         export ROOTLESS=true

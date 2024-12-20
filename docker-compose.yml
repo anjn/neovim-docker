@@ -11,10 +11,15 @@ services:
       - ${HOME}:${HOME}
       - ./files/config:/xdg/config
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - ${XILINX_VITIS:-/dev/null}:${XILINX_VITIS:-/.devnull0}:ro
-      - ${XILINX_HLS:-/dev/null}:${XILINX_HLS:-/.devnull1}:ro
-      - ${XILINX_XRT:-/dev/null}:${XILINX_XRT:-/.devnull2}:ro
-      - ${PKGCONFIG_XRT:-/dev/null}:${PKGCONFIG_XRT:-/.devnull3}:ro
+      - /tools:/tools
+      - /opt:/opt
+        #- ${XILINX_VITIS:-/dev/null}:${XILINX_VITIS:-/.devnull0}:ro
+        #- ${XILINX_HLS:-/dev/null}:${XILINX_HLS:-/.devnull1}:ro
+        #- ${XILINX_VITIS:-/dev/null}:${XILINX_VITIS:-/.devnull0}:ro
+        #- ${XILINX_HLS:-/dev/null}:${XILINX_HLS:-/.devnull1}:ro
+        #- ${XILINX_XRT:-/dev/null}:${XILINX_XRT:-/.devnull2}:ro
+        #- ${PKGCONFIG_XRT:-/dev/null}:${PKGCONFIG_XRT:-/.devnull3}:ro
+        #- ${DATA_DIR:-/dev/null}:${DATA_DIR:-/.devnull4}
     shm_size: 2gb
     environment:
       - USER
